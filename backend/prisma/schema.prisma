@@ -1,0 +1,37 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String    @id @default(uuid())
+  email     String    @unique
+  password  String
+  name      String
+  createdAt DateTime  @default(now())
+  bookings  Booking[]
+}
+
+model Pod {
+  id           String    @id @default(uuid())
+  code         String    @unique
+  type         String    @default("STANDARD")
+  pricePerHour Int
+  isActive     Boolean   @default(true)
+  bookings     Booking[]
+}
+
+model Booking {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  podId     String
+  pod       Pod      @relation(fields: [podId], references: [id], onDelete: Cascade)
+  startTime DateTime
+  endTime   DateTime
+  createdAt DateTime @default(now())
+}
