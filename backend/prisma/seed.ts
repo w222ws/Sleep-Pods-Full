@@ -3,7 +3,7 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log("🌱 Начинаем запуск сидинга базы данных...");
+  console.log(" Начинаем запуск сидинга базы данных...");
 
   // Очищаем старые данные, чтобы не было конфликтов по уникальным кодам
   await prisma.booking.deleteMany();
@@ -21,9 +21,7 @@ async function main() {
     ],
   });
 
-  console.log(
-    `✅ Сидинг успешно завершен! Создано капсул: ${createdPods.count}`,
-  );
+  console.log(` Сидинг успешно завершен! Создано капсул: ${createdPods.count}`);
 }
 
 main()

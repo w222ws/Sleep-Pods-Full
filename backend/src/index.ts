@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import { prisma } from "./lib/prisma.js";
 import podRoutes from "./routes/pod.routes.js";
+import bookingRoutes from "./routes/booking,routes.js";
 
 dotenv.config();
 
@@ -14,6 +15,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api/pods", podRoutes);
+app.use("/api/bookings", bookingRoutes);
 
 app.get("/health", async (req: Request, res: Response) => {
   try {
@@ -28,5 +30,5 @@ app.get("/health", async (req: Request, res: Response) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
+  console.log(` Server running on http://localhost:${PORT}`);
 });

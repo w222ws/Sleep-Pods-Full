@@ -26,12 +26,17 @@ model Pod {
 }
 
 model Booking {
-  id        String   @id @default(uuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  podId     String
-  pod       Pod      @relation(fields: [podId], references: [id], onDelete: Cascade)
-  startTime DateTime
-  endTime   DateTime
-  createdAt DateTime @default(now())
+  id            String   @id @default(uuid())
+  podId         String
+  pod           Pod      @relation(fields: [podId], references: [id], onDelete: Cascade)
+  
+  userId        String?
+  user          User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  customerName  String
+  customerEmail String
+  startTime     DateTime
+  endTime       DateTime
+  totalPrice    Decimal  @db.Decimal(10, 2) @default(0.00)
+  createdAt     DateTime @default(now())
 }
