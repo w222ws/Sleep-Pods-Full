@@ -6,7 +6,7 @@ import { prisma } from "./lib/prisma.js";
 import podRoutes from "./routes/pod.routes.js";
 import bookingRoutes from "./routes/booking,routes.js";
 
-dotenv.config();
+http: dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
