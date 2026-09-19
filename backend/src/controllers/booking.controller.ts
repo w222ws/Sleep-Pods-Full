@@ -1,55 +1,46 @@
 import { type Request, type Response } from "express";
 import { prisma } from "../lib/prisma.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 
-export const createBooking = async (req: Request, res: Response) => {
-  try {
+export const createBooking = asyncHandler(
+  async (req: Request, res: Response) => {
     const { podId, customerName, customerEmail, startTime, endTime } = req.body;
 
     const start = new Date(startTime);
     const end = new Date(endTime);
 
-    // 1. Проверка валидности дат
     if (end <= start) {
-      return res.status(400).json({
-        message:
-          "Время окончания бронирования должно быть позже времени начала",
-      });
+      res.status(400);
+      throw new Error(
+        "Час закінчення бронювання має бути пізніше часу початку",
+      );
     }
 
-    // 2. Ищем капсулу в базе, чтобы проверить её статус и забрать цену за час
     const pod = await prisma.pod.findUnique({
       where: { id: podId },
     });
 
     if (!pod || !pod.isActive) {
-      return res.status(404).json({
-        message: "Капсула не найдена или недоступна для бронирования",
-      });
+      res.status(404);
+      throw new Error("Капсула не знайдена або недоступна для бронювання");
     }
 
-    // 3. Проверяем на овербукинг (есть ли пересечения по времени для этой капсулы)
     const existingBooking = await prisma.booking.findFirst({
       where: {
         podId,
-        AND: [
-          { startTime: { lt: end } }, // существующая бронь началась до нашего выезда
-          { endTime: { gt: start } }, // существующая бронь закончится после нашего въезда
-        ],
+        AND: [{ startTime: { lt: end } }, { endTime: { gt: start } }],
       },
     });
 
     if (existingBooking) {
-      return res.status(409).json({
-        message: "Капсула уже забронирована на выбранное время",
-      });
+      res.status(409);
+      throw new Error("Капсула вже заброньована на обраний час");
     }
 
-    // 4. Считаем длительность в часах и общую стоимость
     const durationInHours =
       (end.getTime() - start.getTime()) / (1000 * 60 * 60);
     const totalPrice = durationInHours * Number(pod.pricePerHour);
 
-    // 5. Сохраняем бронь с посчитанной ценой
     const newBooking = await prisma.booking.create({
       data: {
         podId,
@@ -62,28 +53,20 @@ export const createBooking = async (req: Request, res: Response) => {
     });
 
     res.status(201).json(newBooking);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Не удалось создать бронирование" });
-  }
-};
+  },
+);
 
-export const getBookings = async (req: Request, res: Response) => {
-  try {
-    const bookings = await prisma.booking.findMany({
-      include: {
-        pod: true,
-      },
-    });
-    res.json(bookings);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Ошибка при получении бронирований" });
-  }
-};
+export const getBookings = asyncHandler(async (req: Request, res: Response) => {
+  const bookings = await prisma.booking.findMany({
+    include: {
+      pod: true,
+    },
+  });
+  res.json(bookings);
+});
 
-export const deleteBooking = async (req: Request, res: Response) => {
-  try {
+export const deleteBooking = asyncHandler(
+  async (req: Request, res: Response) => {
     const { id } = req.params;
 
     const booking = await prisma.booking.findUnique({
@@ -91,15 +74,14 @@ export const deleteBooking = async (req: Request, res: Response) => {
     });
 
     if (!booking) {
-      return res.status(404).json({ message: "Бронь не знайдена" });
+      res.status(404);
+      throw new Error("Бронь не знайдена");
     }
 
     await prisma.booking.delete({
       where: { id: id as string },
     });
+
     res.json({ message: "Бронь успішно видалена" });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Помилка при видаленні броні" });
-  }
-};
+  },
+);
