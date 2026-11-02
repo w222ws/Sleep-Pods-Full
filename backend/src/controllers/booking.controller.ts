@@ -1,6 +1,6 @@
-import { type Request, type Response } from "express";
-import { prisma } from "../lib/prisma.js";
-import { asyncHandler } from "../utils/asyncHandler.js";
+import { type Request, type Response } from 'express';
+import { prisma } from '../lib/prisma.js';
+import { asyncHandler } from '../utils/asyncHandler.js';
 
 export const createBooking = asyncHandler(
   async (req: Request, res: Response) => {
@@ -12,7 +12,7 @@ export const createBooking = asyncHandler(
     if (end <= start) {
       res.status(400);
       throw new Error(
-        "Час закінчення бронювання має бути пізніше часу початку",
+        'Час закінчення бронювання має бути пізніше часу початку',
       );
     }
 
@@ -22,7 +22,7 @@ export const createBooking = asyncHandler(
 
     if (!pod || !pod.isActive) {
       res.status(404);
-      throw new Error("Капсула не знайдена або недоступна для бронювання");
+      throw new Error('Капсула не знайдена або недоступна для бронювання');
     }
 
     const existingBooking = await prisma.booking.findFirst({
@@ -34,7 +34,7 @@ export const createBooking = asyncHandler(
 
     if (existingBooking) {
       res.status(409);
-      throw new Error("Капсула вже заброньована на обраний час");
+      throw new Error('Капсула вже заброньована на обраний час'); // caps
     }
 
     const durationInHours =
@@ -75,13 +75,13 @@ export const deleteBooking = asyncHandler(
 
     if (!booking) {
       res.status(404);
-      throw new Error("Бронь не знайдена");
+      throw new Error('Бронь не знайдена');
     }
 
     await prisma.booking.delete({
       where: { id: id as string },
     });
 
-    res.json({ message: "Бронь успішно видалена" });
+    res.json({ message: 'Бронь успішно видалена' });
   },
 );

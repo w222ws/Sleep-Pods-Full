@@ -1,6 +1,6 @@
-import { type Request, type Response } from "express";
-import { prisma } from "../lib/prisma.js";
-import { asyncHandler } from "../utils/asyncHandler.js";
+import { type Request, type Response } from 'express';
+import { prisma } from '../lib/prisma.js';
+import { asyncHandler } from '../utils/asyncHandler.js';
 
 export const getPods = asyncHandler(async (req: Request, res: Response) => {
   const pods = await prisma.pod.findMany({
@@ -18,7 +18,7 @@ export const getPodById = asyncHandler(async (req: Request, res: Response) => {
 
   if (!pod) {
     res.status(404);
-    throw new Error("Капсула не знайдена");
+    throw new Error('Капсула не знайдена');
   }
 
   res.json(pod);
